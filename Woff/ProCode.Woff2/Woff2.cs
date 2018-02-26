@@ -23,18 +23,13 @@ namespace ProCode.Woff2
             ValidateHeader();
 
             // Process Font Directory.
-            fontDirectory = new Woff2FontDirectory(inputData);
+            fontDirectory = new Woff2FontDirectory(inputData, header.NumTables);
             ValidateTableDirectoryEntry();
         }
 
         #endregion
 
         #region Public Methods
-
-        public void ConvertToTtf()
-        {
-
-        }
 
         #endregion
 

@@ -2,7 +2,7 @@
 using System;
 using System.IO;
 
-namespace ProCode.Woff2Ttf.Tests
+namespace ProCode.Woff2.Tests
 {
     [TestClass()]
     public class Woff2HeaderTests

@@ -40,10 +40,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CantReadStreamException.cs" />
+    <Compile Include="Exceptions\CantReadStreamException.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="Exceptions\InvalidUIntBase128Exception.cs" />
+    <Compile Include="Exceptions\NoLeadingZerosException.cs" />
     <Compile Include="Reader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Exceptions\UIntBase128OverflowException.cs" />
+    <Compile Include="Exceptions\UIntBase128SequenceToLongException.cs" />
+    <Compile Include="Exceptions\WoffBaseException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

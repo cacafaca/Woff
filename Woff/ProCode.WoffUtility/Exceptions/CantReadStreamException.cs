@@ -3,7 +3,7 @@ using System.IO;
 
 namespace ProCode.WoffUtility
 {
-    public class CantReadStreamException : Exception
+    public class CantReadStreamException : WoffBaseException
     {
         #region Constructors
 
@@ -11,6 +11,16 @@ namespace ProCode.WoffUtility
             : base(message)
         {
             NoReadStream = stream;
+        }
+
+        /// <summary>
+        /// Sends default message "Can't read stream."
+        /// </summary>
+        /// <param name="stream"></param>
+        public CantReadStreamException(Stream stream)
+            : base("Can't read stream.")
+        {
+
         }
 
         #endregion

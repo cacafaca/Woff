@@ -7,6 +7,9 @@ namespace ProCode.Woff2.Tests
     [TestClass()]
     public class Woff2TableDirectoryEntryTests
     {
+        /// <summary>
+        /// Test not completed yet.
+        /// </summary>
         [TestMethod()]
         public void Woff2TableDirectoryEntryTest()
         {

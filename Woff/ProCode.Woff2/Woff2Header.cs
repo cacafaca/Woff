@@ -65,7 +65,7 @@ namespace ProCode.Woff2
                 valid = true;
             }
             else
-                throw new WoffUtility.CantReadStreamException("Can't read.", headerStream);
+                throw new WoffUtility.CantReadStreamException(headerStream);
         }
 
         #endregion

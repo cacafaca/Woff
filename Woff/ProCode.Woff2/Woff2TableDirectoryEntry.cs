@@ -19,12 +19,18 @@ namespace ProCode.Woff2
             if (tableDirectoryEntryStream.CanRead)
             {
                 ReadFlags(tableDirectoryEntryStream);
-                ReadTag(tableDirectoryEntryStream);
+                if (!IsKnownTableTag())
+                    ReadTag(tableDirectoryEntryStream); // Read custom tag, because it is not known.
+                else
+                    tag = ((KnownTableTags)(flags & 0x3f)).Value(); 
                 ReadOrigLength(tableDirectoryEntryStream);
-                ReadTransformLength(tableDirectoryEntryStream);
+                if (IsNonNullTransform())
+                    ReadTransformLength(tableDirectoryEntryStream);
+                else
+                    transformLength = origLength;
             }
             else
-                throw new WoffUtility.CantReadStreamException("Can't read.", tableDirectoryEntryStream);
+                throw new WoffUtility.CantReadStreamException(tableDirectoryEntryStream);
         }
 
         /// <summary>
@@ -66,16 +72,12 @@ namespace ProCode.Woff2
 
         private void ReadTransformLength(Stream tableDirectoryEntryStream)
         {
-            object outputValue = UInt32.MinValue;
-            WoffUtility.Reader.ReadProperty(tableDirectoryEntryStream, ref outputValue);
-            transformLength = (UInt32)outputValue;
+            WoffUtility.Reader.ReadUIntBase128(tableDirectoryEntryStream, out transformLength);
         }
 
         private void ReadOrigLength(Stream tableDirectoryEntryStream)
         {
-            object outputValue = UInt32.MinValue;
-            WoffUtility.Reader.ReadProperty(tableDirectoryEntryStream, ref outputValue);
-            origLength = (UInt32)outputValue;
+            WoffUtility.Reader.ReadUIntBase128(tableDirectoryEntryStream, out origLength);
         }
 
         private void ReadTag(Stream tableDirectoryEntryStream)
@@ -90,6 +92,25 @@ namespace ProCode.Woff2
             object outputValue = byte.MinValue;
             WoffUtility.Reader.ReadProperty(tableDirectoryEntryStream, ref outputValue);
             flags = (byte)outputValue;
+        }
+
+        private bool IsKnownTableTag()
+        {
+            return (flags & 0x3f) != 0x3f;
+        }
+
+        private bool IsNonNullTransform()
+        {
+            return (flags & 0xc0) >> 6 > 0;
+        }
+
+        #endregion
+
+        #region Overriden Methods
+
+        public override string ToString()
+        {
+            return $"{nameof(Flags)}: {flags.ToString("X")}, {nameof(Tag)}: {tag.ToString("X")}, {nameof(OrigLength)}: {origLength}, {nameof(TransformLength)}: {transformLength}";
         }
 
         #endregion

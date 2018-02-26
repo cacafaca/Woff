@@ -16,14 +16,13 @@ namespace ProCode.Woff2
         /// <param name="numTables">Number of Table Directory Entries or Tables.</param>
         public Woff2FontDirectory(Stream fontDirectoryStream, UInt16 numTables)
         {
-            fontDirectory = new List<Woff2TableDirectoryEntry>();
             if (fontDirectoryStream.CanRead)
                 for (int tabIndex = 0; tabIndex < numTables; tabIndex++)
                 {
-                    fontDirectory.Add(new Woff2TableDirectoryEntry(fontDirectoryStream));
+                    Add(new Woff2TableDirectoryEntry(fontDirectoryStream));
                 }
             else
-                throw new WoffUtility.CantReadStreamException("Can't read.", fontDirectoryStream);
+                throw new WoffUtility.CantReadStreamException(fontDirectoryStream);
         }
 
         /// <summary>
@@ -31,14 +30,13 @@ namespace ProCode.Woff2
         /// </summary>
         public Woff2FontDirectory(List<Woff2TableDirectoryEntry> fontDirectory)
         {
-            this.fontDirectory = fontDirectory;
+            AddRange(fontDirectory);
         }
 
         #endregion
 
         #region Private Properties
 
-        List<Woff2TableDirectoryEntry> fontDirectory;
 
         #endregion
     }
