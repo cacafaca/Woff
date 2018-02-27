@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 
 namespace ProCode.Woff2
 {
@@ -19,15 +20,18 @@ namespace ProCode.Woff2
             if (tableDirectoryEntryStream.CanRead)
             {
                 ReadFlags(tableDirectoryEntryStream);
-                if (!IsKnownTableTag())
+
+                if (IsKnownTableTag())
+                    tagValue = ((KnownTableTags)(flags & 0x3f)).Value(); 
+                else
                     ReadTag(tableDirectoryEntryStream); // Read custom tag, because it is not known.
-                else
-                    tag = ((KnownTableTags)(flags & 0x3f)).Value(); 
+
                 ReadOrigLength(tableDirectoryEntryStream);
-                if (IsNonNullTransform())
-                    ReadTransformLength(tableDirectoryEntryStream);
-                else
+
+                if (IsNullTransform())
                     transformLength = origLength;
+                else
+                    ReadTransformLength(tableDirectoryEntryStream);
             }
             else
                 throw new WoffUtility.CantReadStreamException(tableDirectoryEntryStream);
@@ -43,7 +47,7 @@ namespace ProCode.Woff2
         public Woff2TableDirectoryEntry(byte flags, UInt32 tag, UInt32 origLength, UInt32 transformLength)
         {
             this.flags = flags;
-            this.tag = tag;
+            this.tagValue = tag;
             this.origLength = origLength;
             this.transformLength = transformLength;
         }
@@ -53,18 +57,30 @@ namespace ProCode.Woff2
         #region Public Properties
 
         public byte Flags { get { return flags; } }
-        public UInt32 Tag { get { return tag; } }
+
+        public UInt32 TagValue { get { return tagValue; } }
+
         public UInt32 OrigLength { get { return origLength; } }
+
         public UInt32 TransformLength { get { return transformLength; } }
+
+        public byte TransformationVersion { get { return transformationVersion; } }
+
+        public KnownTableTags Tag { get { return tag; } }
+
+        public byte TagIndex { get { return tagIndex; } }
 
         #endregion
 
         #region Private Properties
 
         byte flags;
-        UInt32 tag;
+        UInt32 tagValue;
         UInt32 origLength;
         UInt32 transformLength;
+        KnownTableTags tag;
+        byte tagIndex;
+        byte transformationVersion;
 
         #endregion
 
@@ -84,7 +100,7 @@ namespace ProCode.Woff2
         {
             object outputValue = UInt32.MinValue;
             WoffUtility.Reader.ReadProperty(tableDirectoryEntryStream, ref outputValue);
-            tag = (UInt32)outputValue;
+            tagValue = (UInt32)outputValue;
         }
 
         private void ReadFlags(Stream tableDirectoryEntryStream)
@@ -92,6 +108,9 @@ namespace ProCode.Woff2
             object outputValue = byte.MinValue;
             WoffUtility.Reader.ReadProperty(tableDirectoryEntryStream, ref outputValue);
             flags = (byte)outputValue;
+            tagIndex = (byte)(flags & 0x3f);
+            transformationVersion = (byte)(flags >> 6);
+            tag = Enum.GetValues(typeof(KnownTableTags)).Cast<KnownTableTags>().ToList()[tagIndex];
         }
 
         private bool IsKnownTableTag()
@@ -99,9 +118,12 @@ namespace ProCode.Woff2
             return (flags & 0x3f) != 0x3f;
         }
 
-        private bool IsNonNullTransform()
+        private bool IsNullTransform()
         {
-            return (flags & 0xc0) >> 6 > 0;
+            if (tag != KnownTableTags.Glyf && tag != KnownTableTags.Loca)
+                return transformationVersion == 0;
+            else
+                return transformationVersion == 3;
         }
 
         #endregion
@@ -110,7 +132,7 @@ namespace ProCode.Woff2
 
         public override string ToString()
         {
-            return $"{nameof(Flags)}: {flags.ToString("X")}, {nameof(Tag)}: {tag.ToString("X")}, {nameof(OrigLength)}: {origLength}, {nameof(TransformLength)}: {transformLength}";
+            return $"{nameof(Flags)}: {flags.ToString("X")}, {nameof(Tag)}: {tag}, {nameof(OrigLength)}: {origLength}, {nameof(TransformLength)}: {transformLength}";
         }
 
         #endregion

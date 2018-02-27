@@ -130,7 +130,8 @@ namespace ProCode.Woff2
         [KnownTableTagValueAttribute("Feat")]
         FeatCapitalF,
         [KnownTableTagValueAttribute("Sill")]
-        Sill
+        Sill,
+        ArbitraryTag
     }
 
     public static class KnownTableTagsHelper
@@ -138,7 +139,7 @@ namespace ProCode.Woff2
         public static UInt32 Value(this KnownTableTags tag)
         {
             var attributes = tag.GetType().GetField(tag.ToString()).GetCustomAttributes(typeof(KnownTableTagValueAttribute), false);
-            if (attributes != null && attributes.Count() > 1)                
+            if (attributes != null && attributes.Count() > 0)                
                 return ((KnownTableTagValueAttribute)attributes.First()).Value;
             else
                 throw new WoffUtility.WoffBaseException("Attribute do not exists.");
@@ -154,16 +155,18 @@ namespace ProCode.Woff2
             Value = value;
         }
 
-        public KnownTableTagValueAttribute(string value)
+        public KnownTableTagValueAttribute(string tagString)
         {
-            if (value == null)
+            if (tagString == null)
                 throw new ArgumentNullException();
 
-            if (value.Length > 4)
-                throw new ArgumentOutOfRangeException(value);
+            if (tagString.Length > 4)
+                throw new ArgumentOutOfRangeException(tagString);
+
+            tagString = tagString.PadRight(4);
 
             UInt32 result = 0;
-            foreach (var c in value)
+            foreach (var c in tagString)
                 result = result << 8 | c;
             Value = result;
             //Value = Convert.ToUInt32(value.PadRight(4 - value.Length));

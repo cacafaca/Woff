@@ -30,7 +30,7 @@ namespace ProCode.Woff2.Tests
             for (int i = 0; i < expectedFontDirectory.Count; i++)
             {
                 Assert.AreEqual(expectedFontDirectory[i].Flags, fontDirectory[i].Flags);
-                Assert.AreEqual(expectedFontDirectory[i].Tag, fontDirectory[i].Tag);
+                Assert.AreEqual(expectedFontDirectory[i].TagValue, fontDirectory[i].TagValue);
                 Assert.AreEqual(expectedFontDirectory[i].OrigLength, fontDirectory[i].OrigLength);
                 Assert.AreEqual(expectedFontDirectory[i].TransformLength, fontDirectory[i].TransformLength);
             }
